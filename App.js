@@ -1,10 +1,15 @@
+import {NativeBaseProvider} from 'native-base';
 import React from 'react';
-import {SafeAreaView, StyleSheet, Text} from 'react-native';
+import {StyleSheet} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import BottomSheet from './src/BottomSheet';
 
 const App = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <Text>ABCD</Text>
+      <NativeBaseProvider>
+        <BottomSheet />
+      </NativeBaseProvider>
     </SafeAreaView>
   );
 };
@@ -12,6 +17,7 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFEBEE',
   },
 });
 
