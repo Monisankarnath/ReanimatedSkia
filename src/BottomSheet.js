@@ -1,11 +1,12 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet} from 'react-native';
 import React from 'react';
+import {Box, Text} from 'native-base';
 
 const BottomSheet = () => {
   return (
-    <View>
+    <Box>
       <Text>BottomSheet</Text>
-    </View>
+    </Box>
   );
 };
 
