@@ -6,10 +6,12 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
+    "dev": "adb reverse tcp:8081 tcp:8081 && react-native run-android",
     "test": "jest",
     "lint": "eslint ."
   },
   "dependencies": {
+    "@shopify/react-native-skia": "^0.1.157",
     "native-base": "^3.4.19",
     "react": "18.1.0",
     "react-native": "0.70.4",
