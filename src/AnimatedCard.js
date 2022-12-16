@@ -17,12 +17,13 @@ import {
 } from 'react-native-gesture-handler';
 import {Canvas, Circle, Fill, vec} from '@shopify/react-native-skia';
 import SkiaImage from './components/SkiaImage';
+import SkiaExample from './SkiaExample';
 
 const {width, height} = Dimensions.get('window');
 const CARD_WIDTH = 0.8 * width;
 const CARD_HEIGHT = 0.7 * height;
 
-const IMAGE_HEIGHT = 0.55 * CARD_HEIGHT + 40;
+const IMAGE_HEIGHT = 0.45 * CARD_HEIGHT;
 const c = vec(IMAGE_HEIGHT / 2, IMAGE_HEIGHT / 2);
 const r = c.x - 32;
 const AnimatedBox = Animated.createAnimatedComponent(Box);
@@ -122,14 +123,9 @@ const AnimatedCard = () => {
             bg="#F6F3F0"
             shadow={4}
             style={animatedCard}>
-            <AnimatedBox
-              h="45%"
-              bg="yellow"
-              justifyContent="center"
-              alignItems="center">
-              <SkiaImage />
-              {/* <SpaceShuttle height={IMAGE_HEIGHT} /> */}
-            </AnimatedBox>
+            <Box justifyContent="center" alignItems="center">
+              <SpaceShuttle height={IMAGE_HEIGHT} />
+            </Box>
             <Box h="40%" px={8}>
               <Text textAlign="center" fontSize="3xl" fontWeight="bold">
                 Animated Card

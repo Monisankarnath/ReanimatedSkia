@@ -1,4 +1,4 @@
-import {Dimensions, StyleSheet, Text} from 'react-native';
+import {Dimensions, StyleSheet} from 'react-native';
 import React from 'react';
 import {Canvas, Fill} from '@shopify/react-native-skia';
 import Button from './components/Button';
