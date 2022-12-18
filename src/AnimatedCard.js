@@ -1,11 +1,12 @@
 import {Dimensions, StyleSheet} from 'react-native';
 import React from 'react';
 import {Box, Button, CheckCircleIcon, HStack, Text} from 'native-base';
-import SpaceShuttle from './components/SpaceShuttle';
+import SpaceShuttle from './assets/SpaceShuttle';
 import Animated, {
   Extrapolation,
   interpolate,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withSpring,
   withTiming,
@@ -18,6 +19,7 @@ import {
 import {Canvas, Circle, Fill, vec} from '@shopify/react-native-skia';
 import SkiaImage from './components/SkiaImage';
 import SkiaExample from './SkiaExample';
+import Blob from './assets/Blob';
 
 const {width, height} = Dimensions.get('window');
 const CARD_WIDTH = 0.8 * width;
@@ -36,6 +38,7 @@ const AnimatedCard = () => {
   const absoluteY = useSharedValue(0);
   const rotateX = useSharedValue(0);
   const rotateY = useSharedValue(0);
+  const imageScale = useSharedValue(1);
   const dragGesture = Gesture.Pan()
     .onBegin(e => {
       absoluteX.value = e.absoluteX;
@@ -46,14 +49,17 @@ const AnimatedCard = () => {
       const y = e.absoluteY - absoluteY.value;
       if (x < MAX_SWIPE) {
         rotateX.value = x;
+        imageScale.value = 1.2;
       }
       if (y < MAX_SWIPE) {
         rotateY.value = y;
+        imageScale.value = 1.2;
       }
     })
     .onEnd(e => {
       rotateX.value = withSpring(0);
       rotateY.value = withSpring(0);
+      imageScale.value = 1;
     });
 
   const animatedCard = useAnimatedStyle(() => {
@@ -104,11 +110,32 @@ const AnimatedCard = () => {
         extrapolateRight: Extrapolation.CLAMP,
       },
     )}deg`;
+    const translationX = interpolate(
+      rotateX.value,
+      [-MAX_SWIPE, MAX_SWIPE],
+      [-80, 80],
+      {
+        extrapolateLeft: Extrapolation.CLAMP,
+        extrapolateRight: Extrapolation.CLAMP,
+      },
+    );
+    const translationY = interpolate(
+      rotateY.value,
+      [-MAX_SWIPE, MAX_SWIPE],
+      [-80, 80],
+      {
+        extrapolateLeft: Extrapolation.CLAMP,
+        extrapolateRight: Extrapolation.CLAMP,
+      },
+    );
     return {
       transform: [
         {perspective: 1500},
         {rotateX: yAxisRotation},
         {rotateY: xAxisRotation},
+        {scale: withTiming(imageScale.value)},
+        {translateX: translationX},
+        {translateY: translationY},
       ],
     };
   });
@@ -123,9 +150,10 @@ const AnimatedCard = () => {
             bg="#F6F3F0"
             shadow={4}
             style={animatedCard}>
-            <Box justifyContent="center" alignItems="center">
-              <SpaceShuttle height={IMAGE_HEIGHT} />
-            </Box>
+            <AnimatedBox h={IMAGE_HEIGHT} style={animatedImage}>
+              {/* <SkiaImage w={CARD_WIDTH} h={IMAGE_HEIGHT} /> */}
+              <Blob h={IMAGE_HEIGHT} w={CARD_WIDTH} />
+            </AnimatedBox>
             <Box h="40%" px={8}>
               <Text textAlign="center" fontSize="3xl" fontWeight="bold">
                 Animated Card
