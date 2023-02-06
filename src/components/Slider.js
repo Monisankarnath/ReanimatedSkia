@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 
-import Wave, {HEIGHT, MARGIN_WIDTH, WIDTH} from './Wave';
+import Wave, {HEIGHT, MARGIN_WIDTH, MIN_LEDGE, WIDTH} from './Wave';
 import LiquidButton from './LiquidButton';
 import {
   Gesture,
@@ -10,6 +10,7 @@ import {
   PanGestureHandler,
 } from 'react-native-gesture-handler';
 import Animated, {
+  runOnJS,
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -29,8 +30,10 @@ const Slider = ({index, children: current, prev, next, setIndex}) => {
   const hasPrev = !!prev;
   const hasNext = !!next;
   const activeSide = useSharedValue(Side.NONE);
-  const left = useVector();
-  const right = useVector();
+  const isTransitioningLeft = useSharedValue(false);
+  const isTransitioningRight = useSharedValue(false);
+  const left = useVector(0, HEIGHT / 2);
+  const right = useVector(0, HEIGHT / 2);
 
   const leftStyle = useAnimatedStyle(() => ({
     zIndex: activeSide.value === Side.LEFT ? 100 : 0,
@@ -56,19 +59,48 @@ const Slider = ({index, children: current, prev, next, setIndex}) => {
     })
     .onEnd(({x, velocityX, velocityY}) => {
       if (activeSide.value === Side.LEFT) {
-        const snapPoints = [MARGIN_WIDTH, WIDTH];
+        const snapPoints = [MIN_LEDGE, WIDTH];
         const dest = snapPoint(x, velocityX, snapPoints);
-        left.x.value = withSpring(dest, {velocity: velocityX});
+        isTransitioningLeft.value = dest === WIDTH;
+        left.y.value = withSpring(HEIGHT / 2, {velocity: velocityY});
+        left.x.value = withSpring(
+          dest,
+          {
+            velocity: velocityX,
+            overshootClamping: isTransitioningLeft.value ? true : false,
+            restSpeedThreshold: isTransitioningLeft.value ? 100 : 0.01,
+            restDisplacementThreshold: isTransitioningLeft.value ? 100 : 0.01,
+          },
+          () => {
+            if (isTransitioningLeft.value) {
+              runOnJS(setIndex)(index - 1);
+            }
+          },
+        );
       } else if (activeSide.value === Side.RIGHT) {
-        const snapPoints = [WIDTH - MARGIN_WIDTH, 0];
+        const snapPoints = [WIDTH - MIN_LEDGE, 0];
         const dest = snapPoint(x, velocityX, snapPoints);
-        left.x.value = withSpring(dest, {velocity: velocityX});
-        right.x.value = withSpring(WIDTH - dest, {velocity: velocityX});
+        isTransitioningRight.value = dest === 0;
+        right.y.value = withSpring(HEIGHT / 2, {velocity: velocityY});
+        right.x.value = withSpring(
+          WIDTH - dest,
+          {
+            velocity: velocityX,
+            overshootClamping: isTransitioningRight.value ? true : false,
+            restSpeedThreshold: isTransitioningRight.value ? 100 : 0.01,
+            restDisplacementThreshold: isTransitioningRight.value ? 100 : 0.01,
+          },
+          () => {
+            if (isTransitioningRight.value) {
+              runOnJS(setIndex)(index + 1);
+            }
+          },
+        );
       }
     });
   useEffect(() => {
-    left.x.value = withSpring(MARGIN_WIDTH);
-    right.x.value = withSpring(MARGIN_WIDTH);
+    left.x.value = withSpring(MIN_LEDGE);
+    right.x.value = withSpring(MIN_LEDGE);
   }, [left.x, right.x]);
   return (
     <GestureHandlerRootView style={StyleSheet.absoluteFill}>
@@ -77,14 +109,20 @@ const Slider = ({index, children: current, prev, next, setIndex}) => {
           {current}
           {prev && (
             <Animated.View style={[StyleSheet.absoluteFill, leftStyle]}>
-              <Wave side={Side.LEFT} position={left}>
+              <Wave
+                side={Side.LEFT}
+                position={left}
+                isTransitioning={isTransitioningLeft}>
                 {prev}
               </Wave>
             </Animated.View>
           )}
           {next && (
             <View style={StyleSheet.absoluteFill}>
-              <Wave side={Side.RIGHT} position={right}>
+              <Wave
+                side={Side.RIGHT}
+                position={right}
+                isTransitioning={isTransitioningRight}>
                 {next}
               </Wave>
             </View>
