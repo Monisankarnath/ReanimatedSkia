@@ -40,9 +40,9 @@ const Slider = ({index, children: current, prev, next, setIndex}) => {
   }));
   const onGestureEvent = Gesture.Pan()
     .onBegin(({x}) => {
-      if (x < MARGIN_WIDTH) {
+      if (x < MARGIN_WIDTH && hasPrev) {
         activeSide.value = Side.LEFT;
-      } else if (x > WIDTH - MARGIN_WIDTH) {
+      } else if (x > WIDTH - MARGIN_WIDTH && hasNext) {
         activeSide.value = Side.RIGHT;
       } else {
         activeSide.value = Side.NONE;
