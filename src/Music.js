@@ -5,7 +5,10 @@ import Animated, {
   Extrapolation,
   interpolate,
   useAnimatedProps,
+  useAnimatedStyle,
   useSharedValue,
+  withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import {
   Gesture,
@@ -19,7 +22,7 @@ const AnimatedBox = Animated.createAnimatedComponent(Box);
 const Music = () => {
   const volBarW = useSharedValue(0);
   const startVolBarW = useSharedValue(0);
-  const volBarH = 2;
+  const volBarPressed = useSharedValue(false);
   const volBarOuterW = useSharedValue(160);
   const animatedBar = useAnimatedProps(() => ({
     width: `${interpolate(volBarW.value, [0, volBarOuterW.value], [0, 100], {
@@ -27,8 +30,25 @@ const Music = () => {
       extrapolateRight: Extrapolation.CLAMP,
     })}%`,
   }));
+  const animatedOuterBar = useAnimatedStyle(() => {
+    const springConfig = {
+      damping: 5,
+      mass: 0.1,
+      stiffness: 50,
+    };
+    return {
+      width: volBarPressed.value
+        ? withSpring(220, springConfig)
+        : withSpring(160, springConfig),
+      height: volBarPressed.value
+        ? withSpring(40, springConfig)
+        : withSpring(8, springConfig),
+    };
+  });
   const gesture = Gesture.Pan()
-    .onBegin(e => {})
+    .onBegin(e => {
+      volBarPressed.value = true;
+    })
     .onUpdate(e => {
       volBarW.value = e.translationX + startVolBarW.value;
     })
@@ -39,6 +59,9 @@ const Music = () => {
         volBarW.value = 160;
       }
       startVolBarW.value = volBarW.value;
+    })
+    .onFinalize(() => {
+      volBarPressed.value = false;
     });
   return (
     <GestureHandlerRootView style={{flex: 1}}>
@@ -49,20 +72,28 @@ const Music = () => {
           justifyContent="center"
           height={40}>
           <GestureDetector gesture={gesture}>
-            <AnimatedHStack space={2} alignItems="center">
-              <Volume h={50} w={40} volBarW={volBarW} />
-              <Box
+            <AnimatedHStack
+              space={2}
+              position="relative"
+              alignItems="center"
+              w="220px"
+              h="50px">
+              <Box position="absolute" left={4} zIndex={999}>
+                <Volume h={50} w={40} volBarW={volBarW} color={'white'} />
+              </Box>
+              <AnimatedBox
                 bg="#343434"
-                w={`${volBarOuterW.value}px`}
-                h={volBarH}
+                style={animatedOuterBar}
+                position="absolute"
+                right={0}
                 borderRadius={8}>
                 <AnimatedBox
                   bg="white"
                   animatedProps={animatedBar}
-                  height={volBarH}
+                  height="100%"
                   borderRadius={8}
                 />
-              </Box>
+              </AnimatedBox>
             </AnimatedHStack>
           </GestureDetector>
         </Box>

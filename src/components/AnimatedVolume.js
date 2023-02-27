@@ -4,7 +4,7 @@ import {Path} from 'react-native-svg';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-const AnimatedVolume = ({d, index, volBarW}) => {
+const AnimatedVolume = ({d, index, volBarW, color}) => {
   const ref = useRef();
   const animatedVolProps = useAnimatedProps(() => {
     let value = 0;
@@ -17,7 +17,6 @@ const AnimatedVolume = ({d, index, volBarW}) => {
       }),
     };
   });
-  const color = 'white';
   return (
     <AnimatedPath
       d={d}
