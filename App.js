@@ -9,13 +9,14 @@ import SkiaExample from './src/SkiaExample';
 import SkiaNeuro from './src/SkiaNeuro';
 import SkiaPath from './src/SkiaPath';
 import LiquidSwipe from './src/LiquidSwipe';
+import Music from './src/Music';
 
 const App = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar hidden />
       <NativeBaseProvider>
-        <LiquidSwipe />
+        <Music />
       </NativeBaseProvider>
     </SafeAreaView>
   );
