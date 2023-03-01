@@ -45,8 +45,8 @@ export const assets = slides.map(({picture}) => picture);
 
 const LiquidSwipe = () => {
   const [index, setIndex] = useState(1);
-  const prev = slides[index - 1];
-  const next = slides[index + 1];
+  const prev = index - 1 >= 0 && slides[index - 1];
+  const next = index + 1 <= slides.length - 1 && slides[index + 1];
   return (
     <Slider
       key={index}

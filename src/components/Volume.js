@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import Animated, {useAnimatedProps, withTiming} from 'react-native-reanimated';
 import Svg, {Path, Rect} from 'react-native-svg';
 import AnimatedVolume from './AnimatedVolume';

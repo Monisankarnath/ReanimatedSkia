@@ -1,11 +1,10 @@
-import React, {useRef, useState} from 'react';
+import React from 'react';
 import Animated, {useAnimatedProps, withTiming} from 'react-native-reanimated';
 import {Path} from 'react-native-svg';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 const AnimatedVolume = ({d, index, volBarW, color}) => {
-  const ref = useRef();
   const animatedVolProps = useAnimatedProps(() => {
     let value = 0;
     if (index === 0 && volBarW.value > 0) value = 1;
@@ -18,13 +17,7 @@ const AnimatedVolume = ({d, index, volBarW, color}) => {
     };
   });
   return (
-    <AnimatedPath
-      d={d}
-      path
-      fill={color}
-      ref={ref}
-      animatedProps={animatedVolProps}
-    />
+    <AnimatedPath d={d} path fill={color} animatedProps={animatedVolProps} />
   );
 };
 
