@@ -1,5 +1,5 @@
 import React from 'react';
-import Animated, {useAnimatedProps, withTiming} from 'react-native-reanimated';
+import Animated, {withTiming, useAnimatedProps} from 'react-native-reanimated';
 import {Path} from 'react-native-svg';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);

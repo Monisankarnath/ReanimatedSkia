@@ -1,0 +1,6 @@
+<svg id="svg" viewBox="0 0 1000 500">
+  
+  <circle fill="gold" cx="500" cy="250" r="200" />
+  <rect id="theRect" fill="hotpink" x="10%" y="5%" width="20%" height="100px" />
+  
+</svg>
