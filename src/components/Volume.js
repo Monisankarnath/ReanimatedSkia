@@ -5,8 +5,10 @@ import Animated, {
   Extrapolation,
   interpolate,
   withSpring,
+  withDelay,
+  useDerivedValue,
 } from 'react-native-reanimated';
-import Svg, {Mask, Path, Rect} from 'react-native-svg';
+import Svg, { Mask, Path, Rect} from 'react-native-svg';
 import AnimatedVolume from './AnimatedVolume';
 
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
@@ -18,21 +20,39 @@ const paths = [
 ];
 const Volume = ({
   volBarW,
-  volBarOuterW,
   volBarPressed,
   color,
   springConfig,
 }) => {
-  const animatedBar = useAnimatedProps(() => ({
-    width: interpolate(
+  const volBarOuterW = useDerivedValue(()=> {
+    return volBarPressed.value ? 220 : 140; 
+  });
+  const volBarInnerW = useDerivedValue(()=> {
+    const width = interpolate(
       volBarW.value,
-      [0, volBarOuterW.value],
+      [0, 140],
       [0, 100],
       {
         extrapolateLeft: Extrapolation.CLAMP,
         extrapolateRight: Extrapolation.CLAMP,
       },
-    ),
+    );
+    return width*volBarOuterW.value/100; 
+  });
+  const volumePercentage= useDerivedValue(()=> {
+    const width = interpolate(
+      volBarW.value,
+      [0, 140],
+      [0, 100],
+      {
+        extrapolateLeft: Extrapolation.CLAMP,
+        extrapolateRight: Extrapolation.CLAMP,
+      },
+    );
+    return width; 
+  });
+  const animatedBar = useAnimatedProps(() => ({
+    width: withSpring(volBarInnerW?.value, springConfig),
     height: volBarPressed.value
       ? withSpring(40, springConfig)
       : withSpring(8, springConfig),
@@ -48,9 +68,7 @@ const Volume = ({
   }));
   const animatedOuterBar = useAnimatedProps(() => {
     return {
-      width: volBarPressed.value
-        ? withSpring(220, springConfig)
-        : withSpring(140, springConfig),
+      width: withSpring(volBarOuterW.value, springConfig),
       height: volBarPressed.value
         ? withSpring(40, springConfig)
         : withSpring(8, springConfig),
@@ -67,7 +85,9 @@ const Volume = ({
   });
   const animatedCrossProps = useAnimatedProps(() => ({
     height: withTiming(volBarW.value <= 0 ? 34 : 0, {duration: 500}),
-    strokeOpacity: withTiming(volBarW.value <= 0 ? 1 : 0, {duration: 500}),
+    width:  volBarW.value <= 0 ? 
+      withTiming(4, {duration: 10}) : 
+      withDelay(490, withTiming(0, {duration: 10})),
   }));
   return (
     <Svg
@@ -76,11 +96,6 @@ const Volume = ({
       viewBox="0 0 220 40"
       fill="none"
       xmlns="http://www.w3.org/2000/svg">
-      <AnimatedRect
-        id="fullbar"
-        animatedProps={animatedOuterBar}
-        fill="#343434"
-      />
       <Mask id="mask">
         <Path
           id="Speaker"
@@ -92,7 +107,7 @@ const Volume = ({
             d={d}
             key={i}
             index={i}
-            volBarW={volBarW}
+            volumePercentage={volumePercentage}
             color={color}
           />
         ))}
@@ -100,18 +115,20 @@ const Volume = ({
           id="cross"
           x="0.680295"
           y="-0.0238379"
-          width="4"
           rx="1.41452"
           transform="matrix(0.654641 -0.755939 0.705948 0.708264 15.2592 10.4018)"
           stroke="black"
           stroke-linejoin="round"
           fill={color}
-          // height="34"
           animatedProps={animatedCrossProps}
         />
       </Mask>
-      
-      <AnimatedRect id="bar" animatedProps={animatedBar} fill={'orange'} />
+      <AnimatedRect
+        id="fullbar"
+        animatedProps={animatedOuterBar}
+        fill="#343434"
+      />
+      <AnimatedRect id="bar" animatedProps={animatedBar} fill={color} />
       
       <Path
         id="Speaker"
@@ -123,7 +140,7 @@ const Volume = ({
           d={d}
           key={i}
           index={i}
-          volBarW={volBarW}
+          volumePercentage={volumePercentage}
           color={color}
         />
       ))}
@@ -131,24 +148,23 @@ const Volume = ({
         id="cross"
         x="0.680295"
         y="-0.0238379"
-        width="4"
         rx="1.41452"
         transform="matrix(0.654641 -0.755939 0.705948 0.708264 15.2592 10.4018)"
         stroke="black"
         stroke-linejoin="round"
         fill={color}
-        // height="34"
         animatedProps={animatedCrossProps}
       />
-
+      <AnimatedRect
+        id="fullbar"
+        animatedProps={animatedOuterBar}
+        fill="#DEDEDE"
+        mask="url(#mask)"
+      />
       <AnimatedRect
         id="bar"
         animatedProps={animatedBar}
-        // x="0"
-        // y="0"
-        // width="220"
-        // height="40"
-        fill="red"
+        fill="#1C1C1C"
         mask="url(#mask)"
       />
     </Svg>

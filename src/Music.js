@@ -1,7 +1,7 @@
 import React from 'react';
 import {Box} from 'native-base';
 import Volume from './components/Volume';
-import {useSharedValue, withSpring} from 'react-native-reanimated';
+import {useSharedValue} from 'react-native-reanimated';
 import {
   Gesture,
   GestureDetector,
@@ -17,7 +17,6 @@ const Music = () => {
   const volBarW = useSharedValue(0);
   const startVolBarW = useSharedValue(0);
   const volBarPressed = useSharedValue(false);
-  const volBarOuterW = useSharedValue(volBarPressed ? 220 : 140);
 
   const gesture = Gesture.Pan()
     .onBegin(() => {
@@ -29,7 +28,7 @@ const Music = () => {
     .onEnd(() => {
       if (volBarW.value < 0) {
         volBarW.value = 0;
-      } else if (volBarW.value > 140) {
+      } else if (volBarW.value >= 140) {
         volBarW.value = 140;
       }
       startVolBarW.value = volBarW.value;
@@ -52,7 +51,6 @@ const Music = () => {
               volBarW={volBarW}
               volBarPressed={volBarPressed}
               springConfig={springConfig}
-              volBarOuterW={volBarOuterW}
               color={'white'}
             />
           </GestureDetector>
